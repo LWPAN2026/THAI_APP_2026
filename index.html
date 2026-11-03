@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>泰語發音本</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<style>
+/* Layout: one phone-width column; sticky header with tabs, list of cards, fixed playback bar at the bottom. */
+:root{
+  --bg:#F3F5F1; --surface:#FFFFFF; --ink:#16302B; --muted:#5E716B; --line:#D9E0DA;
+  --accent:#B8581A; --accent-ink:#FFFFFF; --accent-soft:#F6E3D3; --chip:#E6ECE7; --danger:#B23A3A; --ok:#2F7A55;
+  --f-thai:"Sarabun","Noto Sans Thai","Leelawadee UI",sans-serif;
+  --f-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-display:"Noto Serif TC","Noto Sans TC",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1A18; --surface:#172522; --ink:#E7EFEB; --muted:#93A7A0; --line:#26372F;
+  --accent:#E58A43; --accent-ink:#1A0F06; --accent-soft:#3A2617; --chip:#1F302B; --danger:#E07070; --ok:#6CC59A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1A18; --surface:#172522; --ink:#E7EFEB; --muted:#93A7A0; --line:#26372F;
+  --accent:#E58A43; --accent-ink:#1A0F06; --accent-soft:#3A2617; --chip:#1F302B; --danger:#E07070; --ok:#6CC59A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(150px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:14px 8px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{font-family:var(--f-display);font-size:22px;margin:0;letter-spacing:.02em}
+.brand .th{font-family:var(--f-thai);color:var(--muted);font-size:15px}
+.sync{margin-left:auto;font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-top:10px}
+.tab{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 6px;font-weight:500}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.toolbar{display:grid;gap:10px;padding-block:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 11px;font-size:14px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.label{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.field{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 10px;min-width:0}
+.num{width:76px;font-variant-numeric:tabular-nums}
+.grow{flex:1;min-width:120px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:default}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:14px}
+.summary{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.list{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
+.card.is-hidden{opacity:.55;border-style:dashed}
+.card.playing{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.play{grid-row:span 2;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.play svg{width:20px;height:20px;margin-left:3px}
+.body{min-width:0}
+.thai{font-family:var(--f-thai);font-size:24px;line-height:1.5;font-weight:500;word-break:break-word}
+.card.sentence .thai{font-size:20px}
+.meaning{font-size:15px}
+.note{font-size:13px;color:var(--muted);margin-top:2px}
+.meta{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.count{font-size:12px;background:var(--chip);border-radius:999px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.count b{font-weight:700}
+.mini{border:0;background:none;color:var(--muted);font-size:13px;padding:4px 6px;border-radius:6px}
+.mini:hover{background:var(--chip)}
+.mini.del{color:var(--danger)}
+.spacer{flex:1}
+
+.empty{border:1px dashed var(--line);border-radius:14px;padding:24px 16px;text-align:center;color:var(--muted)}
+.empty b{color:var(--ink)}
+
+.player{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player .inner{max-width:720px;margin:0 auto;display:grid;gap:8px}
+.player .status{font-size:13px;color:var(--muted);min-height:1.2em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player .status .t{font-family:var(--f-thai);color:var(--ink)}
+.bigbtn{flex:1;min-width:140px;padding:11px;border-radius:12px;font-size:16px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;margin-top:12px}
+.panel h2{font-size:16px;margin:0}
+.panel p{margin:0;font-size:14px;color:var(--muted)}
+textarea.field{width:100%;min-height:120px;resize:vertical;font-family:var(--f-thai)}
+.progress{height:6px;background:var(--chip);border-radius:6px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.prev{display:grid;gap:6px;max-height:55vh;overflow:auto}
+.prev label{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:8px;border:1px solid var(--line);border-radius:10px}
+.prev .thai{font-size:19px}
+.tag{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:var(--f-ui)}
+.tag.dup{background:var(--accent-soft);color:var(--accent)}
+.warn{font-size:13px;color:var(--danger)}
+
+.modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.45);display:grid;place-items:end center;padding:16px}
+.sheet{background:var(--surface);border-radius:16px;width:100%;max-width:520px;padding:16px;display:grid;gap:10px;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet h3{margin:0;font-size:17px}
+.sheet .field{width:100%}
+.sheet input.thai-in{font-family:var(--f-thai);font-size:20px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(160px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:14px;z-index:30;max-width:90vw}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="brand">
+    <h1>泰語發音本</h1><span class="th">สมุดฝึกออกเสียง</span>
+    <span class="sync" id="sync">連線中…</span>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-word" aria-selected="true" data-tab="word">單字</button>
+    <button class="tab" role="tab" id="tab-sentence" aria-selected="false" data-tab="sentence">句型</button>
+    <button class="tab" role="tab" id="tab-import" aria-selected="false" data-tab="import">匯入 / 設定</button>
+  </div>
+</header>
+
+<section id="view-list">
+  <div class="toolbar">
+    <div class="row">
+      <span class="label">排序</span>
+      <div class="seg" id="sortSeg">
+        <button data-sort="desc" aria-pressed="false">次數 多→少</button>
+        <button data-sort="asc" aria-pressed="false">少→多</button>
+        <button data-sort="random" aria-pressed="false">隨機</button>
+        <button data-sort="new" aria-pressed="true">最新</button>
+      </div>
+    </div>
+    <div class="row">
+      <span class="label">只顯示</span>
+      <input class="field num" id="limitN" type="number" min="1" inputmode="numeric" placeholder="全部">
+      <span class="summary">筆</span>
+      <input class="field grow" id="search" type="search" placeholder="搜尋泰文或中文">
+    </div>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="showHidden"> 顯示已隱藏</label>
+      <span class="spacer"></span>
+      <button class="btn primary" id="addBtn">＋ 新增</button>
+    </div>
+    <div class="summary" id="summary"></div>
+  </div>
+  <div class="list" id="list"></div>
+</section>
+
+<section id="view-import" hidden>
+  <div class="panel">
+    <h2>從 PDF 擷取單字與句型</h2>
+    <p>上傳 PDF 後，Claude 會挑出重要單字與句型，泰文以標準書寫體呈現，不附拼音。確認後再存進資料庫。</p>
+    <input class="field" type="file" id="pdfFile" accept="application/pdf,.pdf,.txt,text/plain">
+    <p>或直接貼上文字：</p>
+    <textarea class="field" id="pasteText" placeholder="貼上課文、講義內容…"></textarea>
+    <div class="row"><button class="btn primary" id="extractBtn">開始擷取</button><button class="btn" id="cancelExtract" hidden>取消</button></div>
+    <div class="progress" id="prog" hidden><i></i></div>
+    <div class="summary" id="extractStatus"></div>
+    <div id="previewBox" hidden>
+      <div class="row" style="margin-bottom:8px">
+        <strong id="prevCount"></strong><span class="spacer"></span>
+        <button class="btn" id="toggleAllPrev">全選 / 全不選</button>
+        <button class="btn primary" id="savePrev">存入資料庫</button>
+      </div>
+      <div class="prev" id="prevList"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>發音設定</h2>
+    <div class="summary" id="voiceInfo">偵測泰語語音中…</div>
+    <div class="row">
+      <span class="label">語速</span>
+      <input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="0.85" class="grow">
+      <span class="summary" id="rateVal">0.85</span>
+    </div>
+    <button class="btn" id="testVoice">試聽 สวัสดีครับ</button>
+  </div>
+
+  <div class="panel">
+    <h2>備份</h2>
+    <p>把整個資料庫（含播放次數）匯出成 JSON 檔，或從備份檔還原。</p>
+    <div class="row">
+      <button class="btn" id="exportBtn">匯出備份</button>
+      <label class="btn">匯入備份<input type="file" id="importJson" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="player">
+  <div class="inner">
+    <div class="status" id="pStatus">連續播放目前清單，每筆之間可設定間隔。</div>
+    <div class="row">
+      <span class="label">間隔</span>
+      <input class="field num" id="gap" type="number" min="0" step="0.5" inputmode="decimal" value="2">
+      <span class="summary">秒</span>
+      <button class="btn primary bigbtn" id="batchBtn">▶ 連續播放清單</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+function toast(msg, ms = 2200){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, ms); }
+
+/* ---------- state ---------- */
+const state = {
+  tab: "word",
+  items: new Map(),           // id -> item
+  sort: ls.get("sort", "new"),
+  limit: ls.get("limit", ""),
+  q: "",
+  showHidden: false,
+  randomKey: new Map(),
+  playingId: null,
+  batch: null,
+};
+const normThai = s => String(s || "").replace(/\s+/g, "");
+
+/* ---------- storage: claude db, local fallback ---------- */
+const store = {
+  mode: "pending", col: null,
+  async init(){
+    let db = null, user = null;
+    try { [db, user] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user")]); } catch {}
+    let uid = null;
+    try { uid = user ? await user.id() : null; } catch {}
+    if (db && uid) {
+      this.mode = "db";
+      this.col = db.doc("data/users/" + uid + "/lib").collection("items");
+      const timer = setTimeout(() => setSync("雲端資料暫時連不上，稍後會自動重試", true), 10000);
+      this.col.onSnapshot(snap => {
+        if (!snap.metadata.fromCache) clearTimeout(timer);
+        const m = new Map();
+        snap.docs.forEach(d => m.set(d.id, { id: d.id, ...d.data() }));
+        // keep optimistic counts that are ahead of the store
+        for (const [id, it] of m) { const loc = state.items.get(id); if (loc && pending.has(id) && (loc.plays||0) > (it.plays||0)) it.plays = loc.plays; }
+        state.items = m;
+        setSync(snap.metadata.fromCache ? "使用暫存資料" : "已同步雲端 · " + m.size + " 筆");
+        render();
+      }, e => { clearTimeout(timer); setSync("雲端連線中斷（" + e.code + "），請重新開啟頁面", true); });
+    } else {
+      this.mode = "local";
+      const arr = ls.get("thai-items", []);
+      state.items = new Map(arr.map(it => [it.id, it]));
+      setSync("僅存在這台裝置（未登入雲端）", true);
+      render();
+    }
+  },
+  saveLocal(){ ls.set("thai-items", [...state.items.values()]); },
+  async add(data){
+    if (this.mode === "db") { const ref = this.col.doc(); await ref.set(data); return ref.id; }
+    const id = "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    state.items.set(id, { id, ...data }); this.saveLocal(); render(); return id;
+  },
+  async update(id, patch){
+    if (this.mode === "db") return this.col.doc(id).update(patch);
+    const it = state.items.get(id); if (it) Object.assign(it, patch); this.saveLocal(); render();
+  },
+  async remove(id){
+    if (this.mode === "db") return this.col.doc(id).delete();
+    state.items.delete(id); this.saveLocal(); render();
+  }
+};
+function setSync(t, warn){ const s = $("#sync"); s.textContent = t; s.style.color = warn ? "var(--danger)" : ""; }
+
+/* play counts: one write at a time per item, latest value wins */
+const pending = new Map();   // id -> promise chain
+function bumpPlays(id){
+  const it = state.items.get(id); if (!it) return;
+  it.plays = (it.plays || 0) + 1;
+  it.lastPlayed = Date.now();
+  const target = { plays: it.plays, lastPlayed: it.lastPlayed };
+  const prev = pending.get(id) || Promise.resolve();
+  const next = prev.then(async () => {
+    const cur = state.items.get(id);
+    const val = cur ? { plays: Math.max(cur.plays || 0, target.plays), lastPlayed: cur.lastPlayed || target.lastPlayed } : target;
+    try { await store.update(id, val); }
+    catch (e) { await new Promise(r => setTimeout(r, 600 + Math.random()*800)); try { await store.update(id, val); } catch { toast("播放次數未能存檔，請檢查網路"); } }
+  }).finally(() => { if (pending.get(id) === next) pending.delete(id); });
+  pending.set(id, next);
+  updateCountBadge(id);
+}
+
+/* ---------- speech ---------- */
+let thVoice = null;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  thVoice = vs.find(v => /^th([-_]|$)/i.test(v.lang) && /google/i.test(v.name)) || vs.find(v => /^th([-_]|$)/i.test(v.lang)) || null;
+  $("#voiceInfo").innerHTML = thVoice
+    ? "使用語音：<b>" + esc(thVoice.name) + "</b>"
+    : (vs.length ? "<span class='warn'>找不到泰語語音。請到手機「設定 › 系統 › 語言 › 文字轉語音輸出」，在 Google 語音服務中下載「泰文」語音資料。</span>" : "語音清單載入中，第一次播放後會顯示。");
+}
+if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+else $("#voiceInfo").innerHTML = "<span class='warn'>這個瀏覽器不支援語音合成，請用 Chrome 開啟。</span>";
+
+const rateEl = $("#rate");
+rateEl.value = ls.get("rate", 0.85); $("#rateVal").textContent = (+rateEl.value).toFixed(2);
+rateEl.addEventListener("input", () => { $("#rateVal").textContent = (+rateEl.value).toFixed(2); ls.set("rate", +rateEl.value); });
+
+function speak(text){
+  return new Promise(resolve => {
+    if (!("speechSynthesis" in window)) return resolve();
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "th-TH"; if (thVoice) u.voice = thVoice;
+    u.rate = +rateEl.value || 0.85;
+    let done = false; const fin = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
+    u.onend = fin; u.onerror = fin;
+    const guard = setTimeout(fin, 4000 + text.length * 260 / u.rate);   // Android sometimes skips onend
+    speechSynthesis.speak(u);
+    if (!thVoice) setTimeout(pickVoice, 500);
+  });
+}
+
+async function playOne(id){
+  const it = state.items.get(id); if (!it) return;
+  if (state.batch) stopBatch("已停止連續播放");
+  setPlaying(id);
+  bumpPlays(id);
+  await speak(it.thai);
+  if (state.playingId === id && !state.batch) setPlaying(null);
+}
+function setPlaying(id){
+  document.querySelectorAll(".card.playing").forEach(c => c.classList.remove("playing"));
+  state.playingId = id;
+  if (id) { const c = document.querySelector('.card[data-id="' + CSS.escape(id) + '"]'); if (c) { c.classList.add("playing"); if (state.batch) c.scrollIntoView({ block: "center", behavior: "smooth" }); } }
+}
+
+/* ---------- batch playback ---------- */
+const gapEl = $("#gap");
+gapEl.value = ls.get("gap", 2);
+gapEl.addEventListener("change", () => { let v = parseFloat(gapEl.value); if (!(v >= 0)) v = 0; gapEl.value = v; ls.set("gap", v); });
+let wakeLock = null;
+async function batchPlay(){
+  if (state.batch) return stopBatch("已停止");
+  const ids = currentList().map(it => it.id);
+  if (!ids.length) return toast("清單是空的");
+  const run = { stop: false, wake: null };
+  state.batch = run;
+  $("#batchBtn").textContent = "■ 停止";
+  try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {}
+  for (let i = 0; i < ids.length && !run.stop; i++) {
+    const it = state.items.get(ids[i]); if (!it) continue;
+    $("#pStatus").innerHTML = `第 ${i+1} / ${ids.length} 筆　<span class="t">${esc(it.thai)}</span>`;
+    setPlaying(it.id);
+    bumpPlays(it.id);
+    await speak(it.thai);
+    if (run.stop) break;
+    const gap = Math.max(0, parseFloat(gapEl.value) || 0) * 1000;
+    if (i < ids.length - 1 && gap) await new Promise(r => { const t = setTimeout(r, gap); run.wake = () => { clearTimeout(t); r(); }; });
+  }
+  if (state.batch === run) stopBatch(run.stop ? "已停止" : `播放完畢，共 ${ids.length} 筆`);
+}
+function stopBatch(msg){
+  const run = state.batch; if (!run) return;
+  run.stop = true; run.wake?.(); state.batch = null;
+  try { speechSynthesis.cancel(); } catch {}
+  try { wakeLock?.release(); } catch {} wakeLock = null;
+  $("#batchBtn").textContent = "▶ 連續播放清單";
+  $("#pStatus").textContent = msg;
+  setPlaying(null);
+}
+$("#batchBtn").addEventListener("click", batchPlay);
+
+/* ---------- list ---------- */
+function currentList(){
+  const q = state.q.trim().toLowerCase();
+  let arr = [...state.items.values()].filter(it => (it.type || "word") === state.tab);
+  if (!state.showHidden) arr = arr.filter(it => !it.hidden);
+  if (q) arr = arr.filter(it => (it.thai||"").toLowerCase().includes(q) || (it.meaning||"").toLowerCase().includes(q) || (it.note||"").toLowerCase().includes(q));
+  const p = it => it.plays || 0;
+  if (state.sort === "desc") arr.sort((a,b) => p(b) - p(a) || (b.createdAt||0) - (a.createdAt||0));
+  else if (state.sort === "asc") arr.sort((a,b) => p(a) - p(b) || (a.createdAt||0) - (b.createdAt||0));
+  else if (state.sort === "random") { arr.forEach(it => { if (!state.randomKey.has(it.id)) state.randomKey.set(it.id, Math.random()); }); arr.sort((a,b) => state.randomKey.get(a.id) - state.randomKey.get(b.id)); }
+  else arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+  const n = parseInt(state.limit, 10);
+  if (n > 0) arr = arr.slice(0, n);
+  return arr;
+}
+const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>';
+function render(){
+  if (state.tab === "import") return;
+  const all = [...state.items.values()].filter(it => (it.type || "word") === state.tab);
+  const hiddenN = all.filter(it => it.hidden).length;
+  const list = currentList();
+  const name = state.tab === "word" ? "單字" : "句型";
+  $("#summary").textContent = all.length ? `顯示 ${list.length} 筆 · ${name}共 ${all.length} 筆` + (hiddenN ? ` · 已隱藏 ${hiddenN} 筆` : "") : "";
+  const box = $("#list");
+  if (!all.length) {
+    box.innerHTML = `<div class="empty"><b>還沒有${name}</b><br>到「匯入 / 設定」上傳 PDF 讓 Claude 擷取，或按「＋ 新增」手動加入。</div>`;
+    return;
+  }
+  if (!list.length) { box.innerHTML = `<div class="empty">沒有符合條件的${name}。</div>`; return; }
+  box.innerHTML = list.map(it => `
+    <div class="card ${state.tab}${it.hidden ? " is-hidden" : ""}${state.playingId === it.id ? " playing" : ""}" data-id="${esc(it.id)}">
+      <button class="play" data-act="play" aria-label="播放 ${esc(it.thai)}">${playIcon}</button>
+      <div class="body">
+        <div class="thai" lang="th">${esc(it.thai)}</div>
+        ${it.meaning ? `<div class="meaning">${esc(it.meaning)}</div>` : ""}
+        ${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
+      </div>
+      <div class="meta">
+        <span class="count" data-count>已播放 <b>${it.plays || 0}</b> 次</span>
+        <span class="spacer"></span>
+        <button class="mini" data-act="hide">${it.hidden ? "取消隱藏" : "隱藏"}</button>
+        <button class="mini" data-act="edit">編輯</button>
+        <button class="mini del" data-act="del">刪除</button>
+      </div>
+    </div>`).join("");
+}
+function updateCountBadge(id){
+  const c = document.querySelector('.card[data-id="' + CSS.escape(id) + '"] [data-count] b');
+  if (c) c.textContent = state.items.get(id)?.plays || 0;
+}
+
+$("#list").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.closest(".card").dataset.id; const it = state.items.get(id); if (!it) return;
+  const act = b.dataset.act;
+  if (act === "play") playOne(id);
+  else if (act === "hide") store.update(id, { hidden: !it.hidden }).then(() => toast(it.hidden ? "已隱藏" : "已取消隱藏")).catch(() => toast("更新失敗"));
+  else if (act === "edit") openEditor(it);
+  else if (act === "del") confirmDelete(it);
+});
+
+/* sort / limit / search / hidden */
+function paintSort(){ document.querySelectorAll("#sortSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sort === state.sort))); }
+$("#sortSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.sort = b.dataset.sort; ls.set("sort", state.sort);
+  if (state.sort === "random") state.randomKey.clear();   // reshuffle on every tap
+  paintSort(); render();
+});
+const limitEl = $("#limitN");
+limitEl.value = state.limit;
+limitEl.addEventListener("input", () => { state.limit = limitEl.value; ls.set("limit", state.limit); render(); });
+$("#search").addEventListener("input", e => { state.q = e.target.value; render(); });
+$("#showHidden").addEventListener("change", e => { state.showHidden = e.target.checked; render(); });
+paintSort();
+
+/* tabs */
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  state.tab = t.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
+  $("#view-list").hidden = state.tab === "import";
+  $("#view-import").hidden = state.tab !== "import";
+  if (state.batch) stopBatch("已停止");
+  $(".player").hidden = state.tab === "import";
+  render(); window.scrollTo(0, 0);
+}));
+
+/* ---------- modal: add / edit / delete ---------- */
+function openModal(html){ $("#sheet").innerHTML = html; $("#modal").hidden = false; }
+function closeModal(){ $("#modal").hidden = true; $("#sheet").innerHTML = ""; }
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+function openEditor(it){
+  const isNew = !it;
+  it = it || { type: state.tab === "sentence" ? "sentence" : "word", thai: "", meaning: "", note: "" };
+  openModal(`
+    <h3>${isNew ? "新增" : "編輯"}</h3>
+    <div class="seg" id="typeSeg">
+      <button type="button" data-type="word" aria-pressed="${it.type !== "sentence"}">單字</button>
+      <button type="button" data-type="sentence" aria-pressed="${it.type === "sentence"}">句型</button>
+    </div>
+    <label class="label" for="f-thai">泰文（標準書寫，不加拼音）</label>
+    <input class="field thai-in" id="f-thai" lang="th" value="${esc(it.thai)}">
+    <label class="label" for="f-meaning">中文意思</label>
+    <input class="field" id="f-meaning" value="${esc(it.meaning)}">
+    <label class="label" for="f-note">備註 / 用法</label>
+    <input class="field" id="f-note" value="${esc(it.note)}">
+    ${isNew ? "" : `<div class="row"><span class="label">播放次數</span><input class="field num" id="f-plays" type="number" min="0" value="${it.plays || 0}"></div>`}
+    <div class="warn" id="f-err"></div>
+    <div class="row"><button class="btn" id="f-test" type="button">試聽</button><span class="spacer"></span><button class="btn" id="f-cancel" type="button">取消</button><button class="btn primary" id="f-save" type="button">儲存</button></div>`);
+  let type = it.type || "word";
+  $("#typeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; type = b.dataset.type; document.querySelectorAll("#typeSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); });
+  $("#f-test").onclick = () => { const t = $("#f-thai").value.trim(); if (t) speak(t); };
+  $("#f-cancel").onclick = closeModal;
+  $("#f-save").onclick = async () => {
+    const thai = $("#f-thai").value.trim();
+    if (!thai) return $("#f-err").textContent = "請輸入泰文。";
+    if (!/[฀-๿]/.test(thai)) return $("#f-err").textContent = "泰文欄位需要泰文字。";
+    const data = { type, thai, meaning: $("#f-meaning").value.trim(), note: $("#f-note").value.trim() };
+    $("#f-save").disabled = true;
+    try {
+      if (isNew) {
+        const dup = [...state.items.values()].find(x => normThai(x.thai) === normThai(thai));
+        if (dup) { $("#f-save").disabled = false; return $("#f-err").textContent = "資料庫已經有這筆了。"; }
+        await store.add({ ...data, plays: 0, hidden: false, createdAt: Date.now(), source: "手動" });
+        toast("已新增");
+      } else {
+        const pe = $("#f-plays"); if (pe) data.plays = Math.max(0, parseInt(pe.value, 10) || 0);
+        await store.update(it.id, data); toast("已儲存");
+      }
+      closeModal();
+    } catch (e) { $("#f-save").disabled = false; $("#f-err").textContent = e?.code === "quota_exceeded" ? "資料庫已滿，請先刪除一些資料。" : "儲存失敗，請再試一次。"; }
+  };
+  setTimeout(() => $("#f-thai").focus(), 50);
+}
+$("#addBtn").addEventListener("click", () => openEditor(null));
+
+function confirmDelete(it){
+  openModal(`<h3>刪除這筆？</h3><div class="thai" lang="th">${esc(it.thai)}</div><p class="summary">播放紀錄 ${it.plays || 0} 次會一併刪除，無法復原。若只是不想看到，可以改用「隱藏」。</p>
+    <div class="row"><span class="spacer"></span><button class="btn" id="d-no">取消</button><button class="btn danger" id="d-yes">刪除</button></div>`);
+  $("#d-no").onclick = closeModal;
+  $("#d-yes").onclick = async () => { try { await store.remove(it.id); toast("已刪除"); } catch { toast("刪除失敗"); } closeModal(); };
+}
+
+/* ---------- PDF extraction with Claude ---------- */
+let sample = null, sampleLimits = null;
+(async () => {
+  try { sample = await window.claude?.use?.("sample"); } catch {}
+  if (sample) { try { sampleLimits = await sample.limits(); } catch {} }
+  else $("#extractStatus").textContent = "這個檢視無法呼叫 Claude 擷取；仍可手動新增。";
+})();
+if (window.pdfjsLib) { try { pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; } catch {} }
+
+let preview = [];
+let extractAbort = null;
+function setProg(frac, msg){ const p = $("#prog"); p.hidden = frac == null; if (frac != null) p.firstElementChild.style.width = Math.round(frac*100) + "%"; if (msg != null) $("#extractStatus").textContent = msg; }
+
+async function readPdf(file){
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    setProg(i / pdf.numPages * 0.15, `讀取 PDF 第 ${i} / ${pdf.numPages} 頁…`);
+    const page = await pdf.getPage(i);
+    const tc = await page.getTextContent();
+    let s = ""; let lastY = null;
+    for (const t of tc.items) { const y = t.transform?.[5]; if (lastY != null && Math.abs(y - lastY) > 2) s += "\n"; s += t.str; lastY = y; }
+    pages.push(s.trim());
+  }
+  return { pdf, pages };
+}
+async function renderPageImage(pdf, n){
+  const page = await pdf.getPage(n);
+  const vp0 = page.getViewport({ scale: 1 });
+  const scale = Math.min(2, 1600 / Math.max(vp0.width, vp0.height));
+  const vp = page.getViewport({ scale });
+  const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height;
+  await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+  return await new Promise(r => c.toBlob(r, "image/jpeg", 0.85));
+}
+
+const PROMPT = `你是泰語教材編輯。從下面的教材內容中挑出值得學習的「重要單字」與「句型」。
+規則：
+1. 泰文一律用標準泰文書寫（ภาษาไทยมาตรฐาน、正確的標準拼寫與聲調符號），只寫泰文字母。
+2. 絕對不要提供任何拼音、羅馬拼音、注音、IPA 或讀音標註，任何欄位都不行。若原文附有拼音，丟掉。
+3. 單字：常用、在教材裡重要的詞，名詞、動詞、形容詞、量詞、功能詞都可以。不要收數字、人名、頁碼。
+4. 句型：可套用的句子結構，給一個完整的泰文例句放在 thai 欄位，note 欄位用中文說明句型結構（可用「＿＿」表示替換位置，但結構說明中的泰文也不加拼音）。
+5. meaning 用台灣繁體中文。note 簡短，可留空。
+6. 同一個單字或句子只出現一次。
+只回傳 JSON：{"words":[{"thai":"","meaning":"","note":""}],"sentences":[{"thai":"","meaning":"","note":""}]}`;
+
+const LATIN_PAREN = /[\(\[（【][^\)\]）】]*[A-Za-zÀ-ɏ][^\)\]）】]*[\)\]）】]/g;
+function cleanThai(s){ return String(s || "").replace(LATIN_PAREN, "").replace(/[A-Za-zÀ-ɏ]+/g, "").replace(/\s{2,}/g, " ").trim(); }
+function cleanText(s){ return String(s || "").replace(LATIN_PAREN, "").trim(); }
+
+function collect(out, res){
+  for (const [key, type] of [["words","word"],["sentences","sentence"]]) {
+    for (const r of (res?.[key] || [])) {
+      const thai = cleanThai(r.thai);
+      if (!thai || !/[฀-๿]/.test(thai)) continue;
+      const k = normThai(thai);
+      if (out.some(x => normThai(x.thai) === k)) continue;
+      out.push({ type, thai, meaning: cleanText(r.meaning), note: cleanText(r.note) });
+    }
+  }
+}
+
+$("#extractBtn").addEventListener("click", async () => {
+  if (!sample) return toast("目前無法呼叫 Claude，請在 claude.ai 開啟此頁");
+  const file = $("#pdfFile").files[0];
+  const pasted = $("#pasteText").value.trim();
+  if (!file && !pasted) return toast("請先選擇 PDF 或貼上文字");
+  extractAbort = new AbortController();
+  const signal = extractAbort.signal;
+  $("#extractBtn").disabled = true; $("#cancelExtract").hidden = false; $("#previewBox").hidden = true;
+  const out = [];
+  try {
+    let text = pasted, pdf = null, pages = [];
+    if (file) {
+      if (/\.txt$/i.test(file.name) || file.type === "text/plain") text = (await file.text()) + "\n" + pasted;
+      else {
+        if (!window.pdfjsLib) throw new Error("PDF 讀取元件沒有載入，請重新整理頁面");
+        ({ pdf, pages } = await readPdf(file));
+        text = pages.join("\n\n") + (pasted ? "\n\n" + pasted : "");
+      }
+    }
+    const thaiChars = (text.match(/[฀-๿]/g) || []).length;
+    if (pdf && thaiChars < 30 * Math.max(1, pages.length) / 4) {
+      // probably a scanned PDF: send page images
+      if (!sampleLimits?.images) throw new Error("這份 PDF 看起來是掃描圖檔，抓不到文字。請改貼上文字。");
+      const per = Math.max(1, Math.min(4, sampleLimits.images.maxCount || 1));
+      const total = Math.min(pdf.numPages, 24);
+      for (let i = 1; i <= total && !signal.aborted; i += per) {
+        const blobs = [];
+        for (let j = i; j < i + per && j <= total; j++) blobs.push(await renderPageImage(pdf, j));
+        setProg(0.15 + 0.85 * (i - 1) / total, `Claude 正在讀第 ${i}–${Math.min(i+per-1,total)} 頁（掃描檔）…`);
+        const res = await sample.json(PROMPT + "\n\n教材內容在附上的頁面圖片中（共 " + blobs.length + " 頁）。", { images: blobs, signal, modelTier: "default" });
+        collect(out, res);
+      }
+      if (pdf.numPages > total) toast(`只處理前 ${total} 頁`);
+    } else {
+      if (!text.trim()) throw new Error("沒有讀到內容");
+      const SIZE = 6000, chunks = [];
+      for (let i = 0; i < text.length; i += SIZE) chunks.push(text.slice(i, i + SIZE));
+      const use = chunks.slice(0, 20);
+      for (let i = 0; i < use.length && !signal.aborted; i++) {
+        setProg(0.15 + 0.85 * i / use.length, `Claude 正在擷取第 ${i+1} / ${use.length} 段…`);
+        const res = await sample.json(PROMPT + "\n\n已擷取過、不要重複的泰文：" + out.slice(-150).map(x => x.thai).join("、") + "\n\n教材內容：\n" + use[i], { signal, modelTier: "default" });
+        collect(out, res);
+      }
+      if (chunks.length > use.length) toast(`檔案很長，只處理前 ${use.length * SIZE} 字`);
+    }
+    preview = out.map(x => ({ ...x, dup: [...state.items.values()].some(it => normThai(it.thai) === normThai(x.thai)) }));
+    preview.forEach(p => p.keep = !p.dup);
+    showPreview();
+    setProg(null, signal.aborted ? "已取消，以下是已擷取的部分。" : `擷取完成：${out.filter(x=>x.type==="word").length} 個單字、${out.filter(x=>x.type==="sentence").length} 個句型。`);
+  } catch (e) {
+    const msg = e?.code === "not_granted" ? "你沒有允許此頁使用 Claude。" : e?.code === "rate_limited" ? "使用量已達上限，請稍後再試。" : e?.name === "AbortError" || signal.aborted ? "已取消。" : (e?.message || "擷取失敗");
+    setProg(null, msg);
+    if (out.length) { preview = out.map(x => ({ ...x, dup: false, keep: true })); showPreview(); }
+  } finally {
+    $("#extractBtn").disabled = false; $("#cancelExtract").hidden = true; extractAbort = null;
+  }
+});
+$("#cancelExtract").addEventListener("click", () => extractAbort?.abort());
+
+function showPreview(){
+  $("#previewBox").hidden = !preview.length;
+  $("#prevCount").textContent = `預覽 ${preview.length} 筆`;
+  $("#prevList").innerHTML = preview.map((p, i) => `
+    <label><input type="checkbox" data-i="${i}" ${p.keep ? "checked" : ""}>
+      <div><div class="thai" lang="th">${esc(p.thai)}<span class="tag">${p.type === "word" ? "單字" : "句型"}</span>${p.dup ? '<span class="tag dup">已存在</span>' : ""}</div>
+      <div class="meaning">${esc(p.meaning)}</div>${p.note ? `<div class="note">${esc(p.note)}</div>` : ""}</div></label>`).join("");
+}
+$("#prevList").addEventListener("change", e => { const i = +e.target.dataset.i; if (preview[i]) preview[i].keep = e.target.checked; });
+$("#toggleAllPrev").addEventListener("click", () => { const all = preview.every(p => p.keep); preview.forEach(p => p.keep = !all); showPreview(); });
+$("#savePrev").addEventListener("click", async () => {
+  const sel = preview.filter(p => p.keep);
+  if (!sel.length) return toast("沒有勾選任何項目");
+  $("#savePrev").disabled = true;
+  const src = $("#pdfFile").files[0]?.name || "貼上文字";
+  let ok = 0;
+  try {
+    for (const p of sel) {
+      if ([...state.items.values()].some(it => normThai(it.thai) === normThai(p.thai))) continue;
+      await store.add({ type: p.type, thai: p.thai, meaning: p.meaning, note: p.note, plays: 0, hidden: false, createdAt: Date.now() + ok, source: src });
+      ok++; $("#extractStatus").textContent = `存入中… ${ok} / ${sel.length}`;
+    }
+    toast(`已存入 ${ok} 筆`);
+    preview = []; showPreview(); $("#extractStatus").textContent = `已存入 ${ok} 筆，可到「單字」「句型」分頁查看。`;
+  } catch (e) {
+    toast(e?.code === "quota_exceeded" ? "資料庫已滿" : "部分項目存檔失敗");
+  } finally { $("#savePrev").disabled = false; }
+});
+
+/* ---------- voice test, backup ---------- */
+$("#testVoice").addEventListener("click", () => speak("สวัสดีครับ"));
+
+$("#exportBtn").addEventListener("click", async () => {
+  const data = JSON.stringify({ app: "thai-pronounce", exportedAt: new Date().toISOString(), items: [...state.items.values()] }, null, 2);
+  let dl = null; try { dl = await window.claude?.use?.("downloads"); } catch {}
+  if (!dl) return toast("此檢視無法下載檔案");
+  try { await dl.save({ filename: "泰語發音本備份-" + new Date().toISOString().slice(0,10) + ".json", data }); } catch { toast("未下載"); }
+});
+$("#importJson").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text()); const arr = Array.isArray(j) ? j : j.items;
+    if (!Array.isArray(arr)) throw 0;
+    let ok = 0, upd = 0;
+    for (const r of arr) {
+      if (!r?.thai) continue;
+      const ex = [...state.items.values()].find(it => normThai(it.thai) === normThai(r.thai));
+      if (ex) { if ((r.plays||0) > (ex.plays||0)) { await store.update(ex.id, { plays: r.plays }); upd++; } continue; }
+      await store.add({ type: r.type === "sentence" ? "sentence" : "word", thai: String(r.thai), meaning: String(r.meaning||""), note: String(r.note||""), plays: +r.plays || 0, hidden: !!r.hidden, createdAt: +r.createdAt || Date.now(), source: r.source || "備份" });
+      ok++;
+    }
+    toast(`還原完成：新增 ${ok} 筆，更新次數 ${upd} 筆`);
+  } catch { toast("這不是有效的備份檔"); }
+});
+
+window.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modal").hidden) closeModal(); });
+render();
+store.init();
+})();
+</script>
+</body>
+</html>
